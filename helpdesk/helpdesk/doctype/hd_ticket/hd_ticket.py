@@ -1,6 +1,6 @@
 import json
 import uuid
-from email.utils import parseaddr
+from email.utils import parseaddr, formataddr
 
 import frappe
 from bs4 import BeautifulSoup, Comment
@@ -769,6 +769,7 @@ class HDTicket(Document):
         message = self.parse_content(message)
 
         reply_to_email = sender_email.email_id
+        sender_address = formataddr((sender_email.name, sender_email.email_id))
         rendered_template: str | None = None
         if self.via_customer_portal:
             email_content = frappe.db.get_single_value(
@@ -806,7 +807,7 @@ class HDTicket(Document):
                 reference_doctype="HD Ticket",
                 reference_name=self.name,
                 reply_to=reply_to_email,
-                sender=reply_to_email,
+                sender=sender_address,
                 subject=subject,
                 with_container=False,
                 in_reply_to=communication.in_reply_to,
