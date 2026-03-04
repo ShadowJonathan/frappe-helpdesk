@@ -658,6 +658,9 @@ class HDTicket(Document):
         if email_account := self.last_communication_email():
             return email_account
 
+        if self.email_account:
+            return frappe.get_doc("Email Account", self.email_account)
+
         if email_account := default_ticket_outgoing_email_account():
             return email_account
 
