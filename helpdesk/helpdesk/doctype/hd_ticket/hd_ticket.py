@@ -150,6 +150,9 @@ class HDTicket(Document):
             "HD Settings", "feedback_email_content"
         )
         default_feedback_email_content = get_default_email_content("share_feedback")
+
+        sender_email = self.sender_email()
+        sender_address = formataddr((sender_email.name, sender_email.email_id)) if sender_email else None
         try:
             frappe.sendmail(
                 recipients=[self.raised_by],
@@ -161,6 +164,7 @@ class HDTicket(Document):
                 ),
                 reference_doctype="HD Ticket",
                 reference_name=self.name,
+                sender=sender_address,
                 now=True,
                 in_reply_to=last_communication.name if last_communication else None,
                 email_headers={"X-Auto-Generated": "hd-email-feedback"},
@@ -898,6 +902,8 @@ class HDTicket(Document):
             return
 
         recipients = [a.get("name") for a in self.get_assigned_agents()]
+        sender_email = self.sender_email()
+        sender_address = formataddr((sender_email.name, sender_email.email_id)) if sender_email else None
 
         email_content = frappe.db.get_single_value(
             "HD Settings", "reply_email_to_agent_content"
@@ -917,6 +923,7 @@ class HDTicket(Document):
                         "message": message,
                     },
                 ),
+                sender=sender_address,
                 reference_doctype="HD Ticket",
                 reference_name=self.name,
                 now=True,
@@ -932,6 +939,9 @@ class HDTicket(Document):
             "acknowledgement"
         )
 
+        sender_email = self.sender_email()
+        sender_address = formataddr((sender_email.name, sender_email.email_id)) if sender_email else None
+
         try:
             frappe.sendmail(
                 recipients=[self.raised_by],
@@ -942,6 +952,7 @@ class HDTicket(Document):
                 ),
                 reference_doctype="HD Ticket",
                 reference_name=self.name,
+                sender=sender_address,
                 now=True,
                 expose_recipients="header",
                 email_headers={"X-Auto-Generated": "hd-acknowledgement"},
