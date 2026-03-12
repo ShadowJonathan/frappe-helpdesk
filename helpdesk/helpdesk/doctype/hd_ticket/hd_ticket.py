@@ -704,9 +704,11 @@ class HDTicket(Document):
             frappe.throw(
                 _("You are not permitted to reply as an agent"), frappe.PermissionError
             )
+
+        last_communication = self._last_threadable_communication()
         skip_email_workflow = self.skip_email_workflow()
         medium = "" if skip_email_workflow else "Email"
-        subject = f"Re: {self.subject}"
+        subject = f"Re: {self.subject}" if last_communication else self.subject
         from_email_id = from_email.get("email_id") if from_email else None
         email_account_name = from_email.get("email_account") if from_email else None
         sender = from_email_id or frappe.session.user
@@ -741,7 +743,7 @@ class HDTicket(Document):
             }
         )
 
-        communication.in_reply_to = self._last_threadable_communication()
+        communication.in_reply_to = last_communication
 
         # Each reply needs its own id so the next reply can point at it. Saved after
         # the send below, not here.
