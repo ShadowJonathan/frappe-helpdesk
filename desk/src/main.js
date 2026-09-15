@@ -68,7 +68,9 @@ app.use(spritePlugin);
 app.use(pinia);
 app.use(router);
 app.use(translationPlugin);
-app.use(telemetryPlugin, { app_name: "helpdesk" });
+if (window.telemetry?.enabled) {
+  app.use(telemetryPlugin, { app_name: "helpdesk" });
+}
 
 for (const c in globalComponents) {
   app.component(c, globalComponents[c]);
